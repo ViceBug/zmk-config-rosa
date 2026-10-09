@@ -82,10 +82,11 @@ west build -s zmk/app -d build -b nrfmicro_13_52833 -- -DZMK_CONFIG="$PWD/config
 # 常见问题排查
 
 **1. CI 报 `KeyError: 'qualifiers'`（`zephyr/scripts/west_commands/boards.py`）**
-原因：`.github/workflows/build.yml` 引用的 ZMK workflow 与 `config/west.yml` 锁定的
-ZMK 版本属于不同世代。ZMK main（zephyr 4.1 世代）的 workflow 会执行
+原因：ZMK workflow（构建逻辑）与 `config/west.yml` 锁定的 ZMK 版本属于不同世代。
+ZMK main（zephyr 4.1 世代）的 workflow 会执行
 `west boards --format "{qualifiers}"`，而 v0.3（zephyr 3.5 世代）不支持该参数。
-修复：两处引用必须指向**同一个**版本 tag（当前均为 `v0.3`）。
+修复：本仓库已把 workflow 复制到本地并钉死（见下方「CI 加固」），与 west.yml 的
+`v0.3` 属于同一世代，不会再错配。
 另注意 ZMK 的 tag 都带 `v` 前缀（`v0.3.0`/`v0.3`），写 `@0.3.0` 会直接 startup_failure。
 
 **2. CI 报 `grep: .../zephyr/.config: No such file or directory`**
@@ -99,7 +100,23 @@ Kconfig 依赖告警在 ZMK 构建中按错误处理，会直接中止构建。
 - zephyr 4.1 世代（ZMK main 及之后的 release）里，板名从 HWMv1 改为 HWMv2 风格：
   `nrfmicro_13_52833` → `nrfmicro_nrf52833`，升级时需同步改 `build.yaml`。
 - 升级后重新检查 `h65.conf` 里各 `CONFIG_ZMK_*` 是否仍存在（Kconfig 选项会随版本改名）。
-- 升级时务必同时改 workflow 的 `@ref` 和 west.yml 的 `revision`（见问题 1）。
+- 升级时务必同时更新本地的 `build-user-config.yml`（按其文件头注释重新 vendor、
+  钉镜像和 action SHA）和 west.yml 的 `revision`（见问题 1）。
+
+# CI 加固（vendored workflow）
+
+`.github/workflows/build-user-config.yml` 是从 zmk v0.3 复制进本仓库的构建
+workflow（`build.yml` 只是入口，调用本地文件）。所有会随时间漂移的依赖都已钉死：
+
+| 依赖 | 钉死为 | 说明 |
+|---|---|---|
+| 容器镜像 | `zmkfirmware/zmk-build-arm:3.5` | zephyr 3.5 世代正式版镜像（zmk v0.1~v0.3 时期 CI 所用）。版本型 tag（`:2.3`/`:3.5`/`:4.1`…）每个世代只推送一次，永不复用 |
+| GitHub Actions | checkout v4.4.0 / cache v4.3.0 / upload-artifact v4.6.2 | 固定到完整 commit SHA（不可变），不受 GitHub 强制退役 v4 影响 |
+| runner | `ubuntu-latest` | GitHub 永久维护的别名（原 v0.3 workflow 里的 `ubuntu-22.04` 固定镜像会被退役，故改之） |
+
+至此唯一无法钉死的是 GitHub 平台本身的重大变更（如整个 runner 体系的更替）——
+那对所有仓库一视同仁，且 GitHub 会提前数月公告。除此之外，本仓库的构建在
+无人维护的情况下可长期复现。
 
 **4. 本地构建报 `dtc` 相关错误**
 zephyr 需要 device tree compiler。SDK 的 `setup.sh -h` 会装好；若在受限环境

@@ -2,4 +2,6 @@ on: [push, pull_request, workflow_dispatch]
 
 jobs:
   build:
-    uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3
+    # Vendored & hardened copy of zmkfirmware/zmk's build-user-config.yml @ v0.3.
+    # Image, actions and runner are all pinned — see build-user-config.yml.
+    uses: ./.github/workflows/build-user-config.yml
