@@ -40,6 +40,7 @@ jobs:
           TAG: ${{ github.ref_name }}
         run: |
           gh release create "$TAG" \
+            --repo "$GITHUB_REPOSITORY" \
             --title "$TAG" \
             --notes "Automated build of $TAG. Flash the .uf2 via UF2 bootloader (double-tap RESET)." \
             firmware/*
