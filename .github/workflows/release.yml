@@ -1,0 +1,45 @@
+# Tag-triggered firmware release.
+#
+# GitHub Actions artifacts can only be downloaded by logged-in users, so this
+# workflow republishes the build output as a Release asset, which is publicly
+# downloadable. It reuses the vendored, pinned build workflow and only adds
+# official Actions pinned by full commit SHA (same convention as
+# build-user-config.yml). gh CLI is preinstalled on the runner and authenticates
+# with the workflow's own GITHUB_TOKEN — no secrets involved.
+#
+# Usage: git tag firmware-YYYYMMDD && git push origin firmware-YYYYMMDD
+
+name: Firmware release
+
+on:
+  push:
+    tags:
+      - "firmware-*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-user-config.yml
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    name: Publish firmware to GitHub Release
+    steps:
+      - name: Download firmware artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: firmware
+          path: firmware
+
+      - name: Create release and attach firmware
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" \
+            --title "$TAG" \
+            --notes "Automated build of $TAG. Flash the .uf2 via UF2 bootloader (double-tap RESET)." \
+            firmware/*
