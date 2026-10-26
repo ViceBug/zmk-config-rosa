@@ -18,6 +18,10 @@
 		compatible = "zmk,kscan-gpio-matrix";
 		label = "KSCAN";
 
+		/* 允许深度休眠（CONFIG_ZMK_SLEEP）后用任意按键唤醒；
+		 * nRF System OFF 下行输入脚经 SENSE/DETECT 产生唤醒信号 */
+		wakeup-source;
+
 		diode-direction = "col2row";
 		row-gpios
 			= <&gpio0 17 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
