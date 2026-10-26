@@ -11,6 +11,11 @@
 #include <dt-bindings/zmk/outputs.h>
 #include <dt-bindings/zmk/rgb.h>
 
+/* 软关机需长按 2 秒后松开才触发，避免误触；唤醒键为 ESC（见 h65.overlay） */
+&soft_off {
+    hold-time-ms = <2000>;
+};
+
 / {
     keymap0: keymap {
         compatible = "zmk,keymap";
@@ -23,7 +28,7 @@
 
         fn_layer {
             bindings = <
-&bootloader  &gresc  &kp F1  &kp F2  &kp F3  &kp F4  &kp F5  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10  &kp F11  &kp F12  &sys_reset  &kp PGUP  &kp TAB  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &rgb_ug RGB_EFF  &rgb_ug RGB_EFR  &kp I  &kp O  &kp PSCRN  &kp PAUSE_BREAK  &kp SLCK  &kp BSLH  &kp PGDN  &kp CLCK  &kp A  &kp S  &kp D  &kp F  &kp G  &rgb_ug RGB_SAI  &rgb_ug RGB_SAD  &kp K  &kp L  &kp INS  &kp HOME  &ext_power EP_TOG  &kp LSHFT  &out OUT_USB  &out OUT_BLE  &kp C  &kp V  &kp B  &rgb_ug RGB_BRI  &rgb_ug RGB_BRD  &kp Y  &kp COMMA  &kp DEL  &kp END  &kp C_VOL_UP  &kp RSHFT  &rgb_ug RGB_EFF  &rgb_ug RGB_SPI  &kp LALT  &bt BT_CLR  &lt 0 BACKSPACE  &mo 0  &kp C_PREVIOUS  &kp C_VOL_DN  &kp C_NEXT
+&bootloader  &soft_off  &kp F1  &kp F2  &kp F3  &kp F4  &kp F5  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10  &kp F11  &kp F12  &sys_reset  &kp PGUP  &kp TAB  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &rgb_ug RGB_EFF  &rgb_ug RGB_EFR  &kp I  &kp O  &kp PSCRN  &kp PAUSE_BREAK  &kp SLCK  &kp BSLH  &kp PGDN  &kp CLCK  &kp A  &kp S  &kp D  &kp F  &kp G  &rgb_ug RGB_SAI  &rgb_ug RGB_SAD  &kp K  &kp L  &kp INS  &kp HOME  &ext_power EP_TOG  &kp LSHFT  &out OUT_USB  &out OUT_BLE  &kp C  &kp V  &kp B  &rgb_ug RGB_BRI  &rgb_ug RGB_BRD  &kp Y  &kp COMMA  &kp DEL  &kp END  &kp C_VOL_UP  &kp RSHFT  &rgb_ug RGB_EFF  &rgb_ug RGB_SPI  &kp LALT  &bt BT_CLR  &lt 0 BACKSPACE  &mo 0  &kp C_PREVIOUS  &kp C_VOL_DN  &kp C_NEXT
             >;
         };
 
